@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mark Attendance</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Raleway', sans-serif;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(90deg, #C7C5F4, #776BCC);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 30px;
+            background: linear-gradient(90deg, #5D54A4, #7C78B8);
+            box-shadow: 0px 0px 24px #5C5696;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: 120px;
+            height: 520px;
+            width: 520px;
+            background: rgba(255,255,255,0.1);
+            transform: rotate(45deg);
+            border-radius: 0 72px 0 0;
+            z-index: 0;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .alert-success {
+            background-color: rgba(46, 204, 113, 0.2);
+            border-left: 5px solid #2ecc71;
+        }
+
+        .alert-error {
+            background-color: rgba(231, 76, 60, 0.2);
+            border-left: 5px solid #e74c3c;
+        }
+
+        .attendance-note {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            position: relative;
+            z-index: 1;
+            font-size: 0.9em;
+        }
+
+        .attendance-note strong {
+            color: #D4D3E8;
+        }
+
+        form {
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(5px);
+            position: relative;
+            z-index: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #D4D3E8;
+        }
+
+        select, input[type="date"] {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 26px;
+            color: #5D54A4;
+            font-weight: 600;
+            box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235D54A4'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 15px;
+        }
+
+        #loading {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            display: none;
+            padding: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .student-list {
+            max-height: 400px;
+            overflow-y: auto;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            backdrop-filter: blur(5px);
+        }
+
+        .student-list h3 {
+            margin-top: 0;
+            color: white;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 10px;
+        }
+
+        .student-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .student-item:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .student-item input[type="checkbox"] {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #7875B5;
+            border-radius: 6px;
+            margin-right: 15px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .student-item input[type="checkbox"]:checked {
+            background-color: #5D54A4;
+            border-color: #5D54A4;
+        }
+
+        .student-item input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .student-item label {
+            color: white;
+            cursor: pointer;
+            flex-grow: 1;
+            margin: 0;
+        }
+
+        input[type="submit"] {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 30px;
+            background: #fff;
+            color: #5D54A4;
+            border: none;
+            border-radius: 26px;
+            font-weight: 700;
+            box-shadow: 0px 2px 2px #5C5696;
+            border: 1px solid #D4D3E8;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        input[type="submit"]:hover {
+            transform: translateY(-3px);
+            box-shadow: 0px 4px 6px #5C5696;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .student-list {
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-user-check"></i> Mark Attendance</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="attendance-note">
+            <strong><i class="fas fa-info-circle"></i> Note:</strong> 
+            <span style="color: #a3e4a3;"><i class="fas fa-check-circle"></i> Checked boxes</span> indicate PRESENT students | 
+            <span style="color: #f5b7b1;"><i class="fas fa-times-circle"></i> Unchecked boxes</span> indicate ABSENT students
+        </div>
+        
+        <form method="POST" id="attendance-form">
+            <label for="assign_id">Select Course and Class:</label>
+            <select name="assign_id" id="assign_id">
+                {% for course in assigned_courses %}
+                <option value="{{ course.assign_id }}">
+                    {{ course.course_name }} - {{ course.section }} (Sem {{ course.sem }})
+                </option>
+                {% endfor %}
+            </select>
+            
+            <label for="attendance_date">Attendance Date:</label>
+            <input type="date" name="attendance_date" id="attendance_date" required 
+                   value="{{ current_date }}" max="{{ current_date }}">
+            
+            <div id="loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading students...
+            </div>
+            
+            <div class="student-list" id="student-list">
+                <h3>Select Students Present</h3>
+                {% for student in students %}
+                <div class="student-item">
+                    <input type="checkbox" 
+                           id="student-{{ student.USN }}" 
+                           name="students" 
+                           value="{{ student.USN }}" 
+                           checked>
+                    <label for="student-{{ student.USN }}">
+                        {{ student.name }} ({{ student.USN }})
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <input type="submit" value="Mark Attendance">
+        </form>
+    </div>
+
+    <script>
+        // Set default date to today
+        document.getElementById('attendance_date').valueAsDate = new Date();
+        
+        // Add event listener to course selection
+        document.getElementById('assign_id').addEventListener('change', function() {
+            const assignId = this.value;
+            const studentList = document.getElementById('student-list');
+            const loading = document.getElementById('loading');
+            
+            // Show loading, hide student list
+            loading.style.display = 'block';
+            studentList.innerHTML = '<h3>Select Students Present</h3>';
+            
+            // Fetch students for the selected course
+            fetch(`/teacher/mark-attendance/get-students?assign_id=${assignId}`)
+                .then(response => response.json())
+                .then(students => {
+                    // Hide loading
+                    loading.style.display = 'none';
+                    
+                    // Populate student list
+                    students.forEach(student => {
+                        const studentItem = document.createElement('div');
+                        studentItem.className = 'student-item';
+                        
+                        studentItem.innerHTML = `
+                            <input type="checkbox" 
+                                   id="student-${student.USN}" 
+                                   name="students" 
+                                   value="${student.USN}" 
+                                   checked>
+                            <label for="student-${student.USN}">
+                                ${student.name} (${student.USN})
+                            </label>
+                        `;
+                        
+                        studentList.appendChild(studentItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loading.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error loading students';
+                });
+        });
+
+        // Add floating chat button
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatButton = document.createElement('div');
+            chatButton.className = 'chat-button';
+            chatButton.id = 'floatingChatButton';
+            chatButton.innerHTML = '<i class="fas fa-robot"></i>';
+            chatButton.title = 'AI Teaching Assistant';
+            chatButton.addEventListener('click', function() {
+                window.location.href = "{{ url_for('chat_interface') }}";
+            });
+            document.body.appendChild(chatButton);
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                .chat-button {
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    width: 60px;
+                    height: 60px;
+                    background: linear-gradient(90deg, #5D54A4, #7C78B8);
+                    color: white;
+                    border-radius: 50%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    cursor: pointer;
+                    box-shadow: 0px 0px 24px #5C5696;
+                    z-index: 1000;
+                    transition: all 0.3s ease;
+                    border: 1px solid #D4D3E8;
+                }
+                .chat-button:hover {
+                    transform: scale(1.1) translateY(-5px);
+                    box-shadow: 0px 4px 12px #5C5696;
+                }
+                .chat-button i {
+                    font-size: 24px;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>

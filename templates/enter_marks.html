@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Enter Marks</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Raleway', sans-serif;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(90deg, #C7C5F4, #776BCC);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 30px;
+            background: linear-gradient(90deg, #5D54A4, #7C78B8);
+            box-shadow: 0px 0px 24px #5C5696;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: 120px;
+            height: 520px;
+            width: 520px;
+            background: rgba(255,255,255,0.1);
+            transform: rotate(45deg);
+            border-radius: 0 72px 0 0;
+            z-index: 0;
+        }
+
+        h1, h2 {
+            color: white;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        h2 {
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 8px;
+            margin-top: 30px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 26px;
+            color: #5D54A4;
+            font-weight: 600;
+            box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235D54A4'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 15px;
+        }
+
+        #students-container {
+            margin: 25px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0 30px;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(5px);
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        th {
+            background: rgba(255,255,255,0.2);
+            font-weight: 700;
+            color: #D4D3E8;
+        }
+
+        tr:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        input[type="text"] {
+            width: 80px;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 6px;
+            color: #5D54A4;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        input[type="text"]:focus {
+            outline: 2px solid #7875B5;
+        }
+
+        input[type="submit"] {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 30px;
+            background: #fff;
+            color: #5D54A4;
+            border: none;
+            border-radius: 26px;
+            font-weight: 700;
+            box-shadow: 0px 2px 2px #5C5696;
+            border: 1px solid #D4D3E8;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        input[type="submit"]:hover {
+            transform: translateY(-3px);
+            box-shadow: 0px 4px 6px #5C5696;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 25px;
+            background: #fff;
+            color: #5D54A4;
+            text-decoration: none;
+            border-radius: 26px;
+            transition: all 0.3s ease;
+            font-weight: 700;
+            box-shadow: 0px 2px 2px #5C5696;
+            border: 1px solid #D4D3E8;
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0px 4px 6px #5C5696;
+        }
+
+        .back-link i {
+            margin-right: 8px;
+            color: #7875B5;
+        }
+
+        .error {
+            color: #f5b7b1;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            th, td {
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            input[type="text"] {
+                width: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-edit"></i> Enter Marks</h1>
+        
+        <form method="POST">
+            <h2><i class="fas fa-book"></i> Select Course</h2>
+            <select id="assign_id" name="assign_id" required>
+                <option value="">Select a Course</option>
+                {% for course in assigned_courses %}
+                <option value="{{ course.assign_id }}">
+                    {{ course.course_name }} - {{ course.section }} Semester {{ course.sem }}
+                </option>
+                {% endfor %}
+            </select>
+            
+            <h2><i class="fas fa-clipboard-list"></i> Marks Details</h2>
+            <select id="marks_name" name="marks_name" required>
+                <option value="">Select Assessment Type</option>
+                <option value="Event 1">Event 1</option>
+                <option value="Event 2">Event 2</option>
+                <option value="Internal test 1">Internal test 1</option>
+                <option value="Internal test 2">Internal test 2</option>
+                <option value="Internal test 3">Internal test 3</option>
+                <option value="Semester End Exam">Semester End Exam</option>
+            </select>
+            
+            <div id="students-container"></div>
+            
+            <input type="hidden" 
+                   name="course_id" 
+                   value="{{ selected_course.course_id if selected_course else '' }}">
+            
+            <input type="submit" 
+                   formaction="{{ url_for('save_marks') }}" 
+                   value="Save Marks">
+        </form>
+        
+        <a href="{{ url_for('teacher_dashboard') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <script>
+        function loadStudents() {
+            const assignId = document.getElementById('assign_id').value;
+            const studentsDiv = document.getElementById('students-container');
+            const marksNameSelect = document.getElementById('marks_name');
+            
+            if (!assignId) return;
+
+            // Also fetch course details for this assignment
+            fetch(`/teacher/mark-attendance/get-students?assign_id=${assignId}`)
+                .then(response => response.json())
+                .then(students => {
+                    fetch(`/teacher/get-course-details?assign_id=${assignId}`)
+                        .then(response => response.json())
+                        .then(courseDetails => {
+                            // Update the hidden course_id field
+                            document.querySelector('input[name="course_id"]').value = courseDetails.course_id;
+                            
+                            let tableHtml = `
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>USN</th>
+                                            <th>Name</th>
+                                            <th>Previous Marks</th>
+                                            <th>Marks</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                            `;
+                            
+                            const selectedMarksName = marksNameSelect.value;
+                            fetch(`/teacher/get-existing-marks?assign_id=${assignId}&marks_name=${selectedMarksName}`)
+                                .then(existingResponse => existingResponse.json())
+                                .then(existingMarks => {
+                                    students.forEach(student => {
+                                        const existingMark = existingMarks.find(m => m.student_usn === student.USN);
+                                        const previousMark = existingMark ? existingMark.marks : '0';
+                                        
+                                        tableHtml += `
+                                            <tr>
+                                                <td>${student.USN}</td>
+                                                <td>${student.name}</td>
+                                                <td>${previousMark}</td>
+                                                <td>
+                                                    <input type="text" 
+                                                           name="marks_${student.USN}" 
+                                                           value="${previousMark}"
+                                                           placeholder="Marks" 
+                                                           pattern="[0-9]+" 
+                                                           title="Please enter a valid number"
+                                                           required>
+                                                </td>
+                                            </tr>
+                                        `;
+                                    });
+                                    tableHtml += `</tbody></table>`;
+                                    studentsDiv.innerHTML = tableHtml;
+                                });
+                        });
+                });
+        }
+
+        // Trigger student load on both course and marks type change
+        function setupEventListeners() {
+            const assignIdSelect = document.getElementById('assign_id');
+            const marksNameSelect = document.getElementById('marks_name');
+            
+            assignIdSelect.addEventListener('change', loadStudents);
+            marksNameSelect.addEventListener('change', () => {
+                if (assignIdSelect.value) {
+                    loadStudents();
+                }
+            });
+        }
+
+        // Call setup when page loads
+        window.onload = setupEventListeners;
+
+        // Add floating chat button
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatButton = document.createElement('div');
+            chatButton.className = 'chat-button';
+            chatButton.id = 'floatingChatButton';
+            chatButton.innerHTML = '<i class="fas fa-robot"></i>';
+            chatButton.title = 'AI Teaching Assistant';
+            chatButton.addEventListener('click', function() {
+                window.location.href = "{{ url_for('chat_interface') }}";
+            });
+            document.body.appendChild(chatButton);
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                .chat-button {
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    width: 60px;
+                    height: 60px;
+                    background: linear-gradient(90deg, #5D54A4, #7C78B8);
+                    color: white;
+                    border-radius: 50%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    cursor: pointer;
+                    box-shadow: 0px 0px 24px #5C5696;
+                    z-index: 1000;
+                    transition: all 0.3s ease;
+                    border: 1px solid #D4D3E8;
+                }
+                .chat-button:hover {
+                    transform: scale(1.1) translateY(-5px);
+                    box-shadow: 0px 4px 12px #5C5696;
+                }
+                .chat-button i {
+                    font-size: 24px;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>
